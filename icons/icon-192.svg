@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="42" fill="#18212f"/>
+  <circle cx="68" cy="78" r="34" fill="#2fa49f"/>
+  <path d="M96 44a52 52 0 1 1-36.8 88.8L96 96Z" fill="#efb54a"/>
+  <path d="M109 40a58 58 0 0 1 40 90l-40-34Z" fill="#d95f59"/>
+  <text x="96" y="150" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#f4f0e8">BC</text>
+</svg>

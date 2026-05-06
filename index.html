@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#18212f" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Budget Condiviso" />
+    <title>Budget Condiviso</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="app" class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Budget condiviso</p>
+          <h1 id="screen-title">Home</h1>
+        </div>
+        <button id="install-button" class="icon-button hidden" type="button" aria-label="Installa app" title="Installa app">
+          <span aria-hidden="true">&darr;</span>
+        </button>
+      </header>
+
+      <main id="view" class="view" aria-live="polite"></main>
+
+      <nav class="bottom-nav" aria-label="Navigazione principale">
+        <button class="nav-item active" type="button" data-route="home" aria-label="Home" title="Home">
+          <span aria-hidden="true">&#9680;</span>
+          <small>Home</small>
+        </button>
+        <button class="nav-item" type="button" data-route="movement-new" aria-label="Nuovo movimento" title="Nuovo movimento">
+          <span aria-hidden="true">+</span>
+          <small>Nuovo</small>
+        </button>
+        <button class="nav-item" type="button" data-route="setup" aria-label="Setup" title="Setup">
+          <span aria-hidden="true">&#9881;</span>
+          <small>Setup</small>
+        </button>
+      </nav>
+    </div>
+
+    <template id="empty-state-template">
+      <section class="empty-state">
+        <h2></h2>
+        <p></p>
+      </section>
+    </template>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
