@@ -6,16 +6,10 @@ WORKDIR /app
 # Copy only necessary files
 COPY app.js dev-server.js index.html styles.css sw.js manifest.webmanifest firestore.rules ./
 COPY icons ./icons
+COPY start.sh ./
 
-# Create a startup script that injects Firebase config from environment
-RUN echo '#!/bin/sh\n\
-if [ -z "$FIREBASE_PROJECT_ID" ]; then\n\
-  echo "ERROR: FIREBASE_PROJECT_ID environment variable is not set"\n\
-  exit 1\n\
-fi\n\
-\n\
-exec node dev-server.js\n\
-' > /app/start.sh && chmod +x /app/start.sh
+# Make startup script executable
+RUN chmod +x /app/start.sh
 
 EXPOSE 4173
 
