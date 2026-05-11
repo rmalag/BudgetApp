@@ -8,8 +8,6 @@ WORKDIR /app
 COPY app.js dev-server.js index.html styles.css sw.js manifest.webmanifest firestore.rules ./
 COPY icons ./icons
 COPY start.sh ./
-# Copy certs if present
-COPY certs ./certs
 
 # Make startup script executable
 RUN chmod +x /app/start.sh
