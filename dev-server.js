@@ -1,4 +1,8 @@
 const http = require("http");
+const https = require("https");
+const sslKey = process.env.SSL_KEY;
+const sslCert = process.env.SSL_CERT;
+const sslCa = process.env.SSL_CA;
 const fs = require("fs");
 const path = require("path");
 
@@ -31,36 +35,48 @@ function getFirebaseConfigScript() {
   return "";
 }
 
-http
-  .createServer((req, res) => {
-    let pathname = decodeURIComponent(new URL(req.url, `http://${host}`).pathname);
-    if (pathname === "/") pathname = "/index.html";
+const requestHandler = (req, res) => {
+  let proto = sslKey && sslCert ? "https" : "http";
+  let pathname = decodeURIComponent(new URL(req.url, `${proto}://${host}`).pathname);
+  if (pathname === "/") pathname = "/index.html";
 
-    const filePath = path.normalize(path.join(root, pathname));
-    if (!filePath.startsWith(root)) {
-      res.writeHead(403);
-      res.end("Forbidden");
+  const filePath = path.normalize(path.join(root, pathname));
+  if (!filePath.startsWith(root)) {
+    res.writeHead(403);
+    res.end("Forbidden");
+    return;
+  }
+
+  fs.readFile(filePath, (error, data) => {
+    if (error) {
+      res.writeHead(404);
+      res.end("Not found");
       return;
     }
 
-    fs.readFile(filePath, (error, data) => {
-      if (error) {
-        res.writeHead(404);
-        res.end("Not found");
-        return;
-      }
+    let content = data.toString();
+    // Inject Firebase config into HTML before closing </head>
+    if (pathname === "/index.html") {
+      const firebaseScript = getFirebaseConfigScript();
+      content = content.replace("</head>", `${firebaseScript}</head>`);
+    }
 
-      let content = data.toString();
-      // Inject Firebase config into HTML before closing </head>
-      if (pathname === "/index.html") {
-        const firebaseScript = getFirebaseConfigScript();
-        content = content.replace("</head>", `${firebaseScript}</head>`);
-      }
+    res.writeHead(200, { "Content-Type": types[path.extname(filePath)] || "application/octet-stream" });
+    res.end(content);
+  });
+};
 
-      res.writeHead(200, { "Content-Type": types[path.extname(filePath)] || "application/octet-stream" });
-      res.end(content);
-    });
-  })
-  .listen(port, host, () => {
+if (sslKey && sslCert) {
+  const options = {
+    key: fs.readFileSync(sslKey),
+    cert: fs.readFileSync(sslCert),
+    ca: sslCa ? fs.readFileSync(sslCa) : undefined
+  };
+  https.createServer(options, requestHandler).listen(port, host, () => {
+    console.log(`Server listening on https://${host}:${port}`);
+  });
+} else {
+  http.createServer(requestHandler).listen(port, host, () => {
     console.log(`Server listening on http://${host}:${port}`);
   });
+}

@@ -22,9 +22,15 @@ services:
       - FIREBASE_MEASUREMENT_ID=${FIREBASE_MEASUREMENT_ID}
       # Workspace configuration (required)
       - WORKSPACE_ID=${WORKSPACE_ID}
+      # SSL (optional)
+      - SSL_KEY=${SSL_KEY}
+      - SSL_CERT=${SSL_CERT}
+      - SSL_CA=${SSL_CA}
     restart: unless-stopped
+    volumes:
+      - ./certs:/certs:ro
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4173"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${PORT:-4173}"]
       interval: 30s
       timeout: 3s
       retries: 3

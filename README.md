@@ -42,7 +42,40 @@ node dev-server.js
 
 Poi apri `http://127.0.0.1:4173/`.
 
-Per installare su iOS serve servire la PWA via HTTPS in produzione. Su Android e desktop funziona anche da `localhost` durante lo sviluppo.
+
+
+### Avvio con HTTPS/SSL (Let’s Encrypt)
+
+Per servire la PWA in HTTPS (es. per installazione su iOS o produzione) usando certificati standard come quelli di Let’s Encrypt:
+
+1. Prepara i certificati SSL come `fullchain.pem` (catena completa) e `privkey.pem` (chiave privata) e mettili nella cartella `certs/` nella root del progetto.
+2. Imposta queste variabili nel file `.env` o direttamente in Docker Compose:
+
+   ```env
+   SSL_KEY=/certs/privkey.pem
+   SSL_CERT=/certs/fullchain.pem
+   # SSL_CA non necessario con fullchain.pem
+   ```
+
+3. Avvia con Docker Compose normalmente:
+
+   ```bash
+   docker-compose up --build
+   ```
+
+Se le variabili SSL non sono impostate, il server parte in HTTP.
+
+Esempio di struttura:
+
+```
+BudgetApp/
+  certs/
+    privkey.pem
+    fullchain.pem
+  ...
+```
+
+---
 
 ## Deployment con Docker
 
