@@ -35,8 +35,8 @@ function getFirebaseConfigScript() {
   return "";
 }
 
-const USERNAME = process.env.USERNAME || '';
-const PASSWORD = process.env.PASSWORD || '';
+const USERNAME = process.env.U || '';
+const PASSWORD = process.env.P || '';
 
 const requestHandler = (req, res) => {
   let proto = sslKey && sslCert ? "https" : "http";

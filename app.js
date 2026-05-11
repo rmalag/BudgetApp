@@ -19,6 +19,7 @@ const CURRENCY = new Intl.NumberFormat("it-IT", { style: "currency", currency: "
 const DATE_FMT = new Intl.DateTimeFormat("it-IT", { day: "2-digit", month: "2-digit", year: "2-digit" });
 const LONG_DATE_FMT = new Intl.DateTimeFormat("it-IT", { day: "2-digit", month: "2-digit", year: "numeric" });
 const todayIso = () => toIsoDate(new Date());
+const loginTTL = 30; // 30 giorni
 
 
 const state = {
@@ -58,7 +59,8 @@ function init() {
   registerServiceWorker();
 
   // Check login state
-  if (localStorage.getItem("budget-login-ok") === "1") {
+  let date = new Date().getTime();
+  if (localStorage.getItem("budget-login-exp") >= date) {
     state.loggedIn = true;
     state.route = state.config ? "home" : "setup";
     if (state.config) connectFirebase();
@@ -201,8 +203,11 @@ function renderLogin() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
       });
+
       if (res.ok) {
-        localStorage.setItem("budget-login-ok", "1");
+        let expDate = new Date();
+        expDate.setDate(new Date().getDate() + loginTTL);
+        localStorage.setItem("budget-login-exp", expDate.getTime());
         state.loggedIn = true;
         state.route = state.config ? "home" : "setup";
         if (state.config) connectFirebase();

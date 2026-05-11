@@ -27,8 +27,8 @@ services:
       - SSL_CERT=${SSL_CERT}
       - SSL_CA=${SSL_CA}
       # Login (obbligatorio per accesso)
-      - USERNAME=${USERNAME}
-      - PASSWORD=${PASSWORD}
+      - U=${U}
+      - P=${P}
     restart: unless-stopped
     volumes:
       - ./certs:/certs:ro
