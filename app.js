@@ -155,6 +155,7 @@ function render() {
   if (state.route === "setup") renderSetup();
   else if (state.route === "movement-new") renderMovementForm();
   else if (state.route === "movement-detail") renderMovementDetail();
+  else if (state.route === "balances") renderBalancesPage();
   else renderHome();
 }
 
@@ -225,24 +226,18 @@ function renderHome() {
         </form>
       ` : ""}
     </div>
-    <div class="grid home-layout">
-      <section class="panel">
-        <div class="chart-section">
-          <div class="chart-header">
-            <h2>${chartLabel}</h2>
-            <div class="chart-toggle">
-              <button class="chart-toggle-btn ${chartType === "income" ? "active" : ""}" type="button" data-chart-type="income">Entrate</button>
-              <button class="chart-toggle-btn ${chartType === "expense" ? "active" : ""}" type="button" data-chart-type="expense">Uscite</button>
-            </div>
+    <section class="panel">
+      <div class="chart-section">
+        <div class="chart-header">
+          <h2>${chartLabel}</h2>
+          <div class="chart-toggle">
+            <button class="chart-toggle-btn ${chartType === "income" ? "active" : ""}" type="button" data-chart-type="income">Entrate</button>
+            <button class="chart-toggle-btn ${chartType === "expense" ? "active" : ""}" type="button" data-chart-type="expense">Uscite</button>
           </div>
-          ${chartSection("", "current-chart", chartData, chartType)}
         </div>
-      </section>
-      <section class="panel">
-        <h2>Saldi conti</h2>
-        ${renderBalances()}
-      </section>
-    </div>
+        ${chartSection("", "current-chart", chartData, chartType)}
+      </div>
+    </section>
     <section class="panel" style="margin-top:16px">
       <h2>Movimenti nel periodo</h2>
       ${movements.length ? movements.map(renderMovementRow).join("") : emptyStateHtml("Nessun movimento", "Aggiungi un movimento o cambia periodo.")}
@@ -251,6 +246,22 @@ function renderHome() {
 
   bindHomeEvents();
   drawPie("current-chart", chartData, chartType);
+
+}
+
+// Pagina dedicata ai saldi conti
+function renderBalancesPage() {
+  setTitle("Saldi conti");
+  view.innerHTML = `
+    <section class="panel">
+      <h2>Saldi conti</h2>
+      ${renderBalances()}
+      <div style="margin-top:24px">
+        <button class="secondary-button" type="button" id="back-home">Torna alla home</button>
+      </div>
+    </section>
+  `;
+  document.querySelector("#back-home").addEventListener("click", () => navigate("home"));
 }
 
 function bindHomeEvents() {
@@ -278,8 +289,8 @@ function bindHomeEvents() {
     state.range.customEnd = form.get("end");
     renderHome();
   });
-  document.querySelectorAll(\"[data-chart-type]\").forEach((button) => {
-    button.addEventListener(\"click\", () => {
+  document.querySelectorAll("[data-chart-type]").forEach((button) => {
+    button.addEventListener("click", () => {
       state.selectedChartType = button.dataset.chartType;
       renderHome();
     });
