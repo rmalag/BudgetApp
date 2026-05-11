@@ -22,6 +22,6 @@ ENV PORT=4173
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require(\"http\").get(\"http://localhost:${PORT:-4173}\", (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)}).on(\"error\", () => { throw new Error(\"healthcheck failed\") })"
+  CMD node -e "require(\"http\").get(\"https://localhost:${PORT:-4173}\", (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)}).on(\"error\", () => { throw new Error(\"healthcheck failed\") })"
 
 ENTRYPOINT ["/app/start.sh"]
