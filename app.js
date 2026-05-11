@@ -20,8 +20,9 @@ const DATE_FMT = new Intl.DateTimeFormat("it-IT", { day: "2-digit", month: "2-di
 const LONG_DATE_FMT = new Intl.DateTimeFormat("it-IT", { day: "2-digit", month: "2-digit", year: "numeric" });
 const todayIso = () => toIsoDate(new Date());
 
+
 const state = {
-  route: "home",
+  route: "login",
   selectedId: null,
   config: loadConfig(),
   connecting: false,
@@ -38,7 +39,8 @@ const state = {
     customEnd: todayIso()
   },
   editingSetup: null,
-  selectedChartType: "income"
+  selectedChartType: "income",
+  loggedIn: false
 };
 
 const view = document.querySelector("#view");
@@ -46,15 +48,20 @@ const title = document.querySelector("#screen-title");
 const installButton = document.querySelector("#install-button");
 let deferredInstallPrompt = null;
 
+
 init();
+
 
 function init() {
   bindNav();
   bindInstall();
   registerServiceWorker();
 
-  if (state.config) {
-    connectFirebase();
+  // Check login state
+  if (localStorage.getItem("budget-login-ok") === "1") {
+    state.loggedIn = true;
+    state.route = state.config ? "home" : "setup";
+    if (state.config) connectFirebase();
   }
 
   render();
@@ -139,7 +146,14 @@ function navigate(route, selectedId = null) {
   render();
 }
 
+
 function render() {
+  if (!state.loggedIn) {
+    setTitle("Login");
+    renderLogin();
+    return;
+  }
+
   if (state.config && state.connecting) {
     setTitle("Connessione");
     view.innerHTML = `<section class="panel"><h2>Connessione realtime</h2><p class="muted">Sto collegando il workspace condiviso.</p></section>`;
@@ -157,6 +171,49 @@ function render() {
   else if (state.route === "movement-detail") renderMovementDetail();
   else if (state.route === "balances") renderBalancesPage();
   else renderHome();
+}
+
+function renderLogin() {
+  view.innerHTML = `
+    <section class="panel">
+      <h2>Login</h2>
+      <form id="login-form" class="form">
+        <label>Username
+          <input name="username" required autocomplete="username" />
+        </label>
+        <label>Password
+          <input name="password" type="password" required autocomplete="current-password" />
+        </label>
+        <button class="primary-button" type="submit">Accedi</button>
+      </form>
+      <p class="muted" style="margin-top:12px">Le credenziali sono definite dal gestore del server.</p>
+    </section>
+  `;
+  document.querySelector("#login-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const username = form.get("username");
+    const password = form.get("password");
+    try {
+      // Chiedi al backend di validare le credenziali
+      const res = await fetch("/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+      if (res.ok) {
+        localStorage.setItem("budget-login-ok", "1");
+        state.loggedIn = true;
+        state.route = state.config ? "home" : "setup";
+        if (state.config) connectFirebase();
+        render();
+      } else {
+        toast("Credenziali non valide");
+      }
+    } catch (e) {
+      toast("Errore di rete");
+    }
+  });
 }
 
 function setTitle(text) {

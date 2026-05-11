@@ -35,9 +35,40 @@ function getFirebaseConfigScript() {
   return "";
 }
 
+const USERNAME = process.env.USERNAME || '';
+const PASSWORD = process.env.PASSWORD || '';
+
 const requestHandler = (req, res) => {
   let proto = sslKey && sslCert ? "https" : "http";
   let pathname = decodeURIComponent(new URL(req.url, `${proto}://${host}`).pathname);
+
+  // Endpoint autenticazione
+  if (pathname === "/auth" && req.method === "POST") {
+    let body = "";
+    req.on("data", chunk => { body += chunk; });
+    req.on("end", () => {
+      try {
+        const { username, password } = JSON.parse(body);
+        if (
+          typeof username === "string" &&
+          typeof password === "string" &&
+          username === USERNAME &&
+          password === PASSWORD
+        ) {
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ ok: true }));
+        } else {
+          res.writeHead(401, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Unauthorized" }));
+        }
+      } catch {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Bad request" }));
+      }
+    });
+    return;
+  }
+
   if (pathname === "/") pathname = "/index.html";
 
   const filePath = path.normalize(path.join(root, pathname));
